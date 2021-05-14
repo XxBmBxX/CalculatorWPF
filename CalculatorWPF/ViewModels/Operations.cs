@@ -11,11 +11,10 @@ namespace CalculatorWPF
         public static void DigitClickedUpdate(object parameter)
         {
             if (CalculatorViewModel.DecimalClicked && !char.IsDigit(char.Parse(parameter as string)))
-                return;
-            if (CalculatorViewModel.CalculatorField == "0")
-                CalculatorViewModel.DecimalClicked = false;
+                return;                
             if (CalculatorViewModel.CalculatorField == "0")
             {
+                CalculatorViewModel.DecimalClicked = false;
                 CalculatorViewModel.CalculatorField = parameter as string;
             }
             else
@@ -51,6 +50,7 @@ namespace CalculatorWPF
                 case "=":
                     CalculatorViewModel.CalculatorField = CalculateString(CalculatorViewModel.CalculatorField);
                     CalculatorViewModel.DecimalClicked = true;
+                    CalculatorViewModel.AllowOperations = true;
                     break;
                 case "C":
                     CalculatorViewModel.CalculatorField = "0";
@@ -65,6 +65,7 @@ namespace CalculatorWPF
                     else
                     {
                         CalculatorViewModel.CalculatorField = Math.Sqrt(Convert.ToDouble(CalculateString(CalculatorViewModel.CalculatorField))).ToString();
+                        CalculatorViewModel.AllowOperations = true;
                         CalculatorViewModel.DecimalClicked = true;
                     }                    
                     break;
@@ -85,6 +86,7 @@ namespace CalculatorWPF
                     if (CalculatorViewModel.CalculatorField.Length > 0)
                     {
                         CalculatorViewModel.CalculatorField = (1 / Convert.ToDouble(CalculateString(CalculatorViewModel.CalculatorField))).ToString();
+                        CalculatorViewModel.AllowOperations = true;
                     }
                     break;
                 default:
@@ -136,15 +138,19 @@ namespace CalculatorWPF
         {
             if (mathProblem.Length == 1)
                 return mathProblem;
+            if (mathProblem.EndsWith("+") || mathProblem.EndsWith("-") || mathProblem.EndsWith("×") || mathProblem.EndsWith("÷"))
+                mathProblem = mathProblem.Remove(mathProblem.Length - 1, 1);
             char[] delimiterChars = { '+', '-', '×', '÷' };
             string[] numbers = mathProblem.Split(delimiterChars);
             char[] operations = new string(mathProblem.Where(c => c < '0' || c > '9').ToArray()).ToCharArray();
-
             if (numbers.Length == 1)
+            {
+                CalculatorViewModel.AllowOperations = true;
                 return numbers[0].ToString();
+            }                
             decimal result = 0;
             for (int i = 0; i < numbers.Length - 1; i++)
-            {
+            {                         
                 if (result == 0)
                 {
                     switch (operations[i])
@@ -186,6 +192,7 @@ namespace CalculatorWPF
                     }
                 }
             }
+            CalculatorViewModel.AllowOperations = true;
             return result.ToString();
         }
     }
