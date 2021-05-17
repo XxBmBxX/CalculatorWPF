@@ -57,6 +57,18 @@ namespace CalculatorWPF
                     CalculatorViewModel.DecimalClicked = true;
                     CalculatorViewModel.AllowOperations = false;
                     break;
+                case "negate":
+                    if (CalculatorViewModel.CalculatorField.StartsWith("-"))
+                    {
+                        CalculatorViewModel.CalculatorField = CalculatorViewModel.CalculatorField.Remove(0, 1);
+                    }
+                    else
+                    {
+                        CalculatorViewModel.CalculatorField = (Convert.ToDouble(CalculateString(CalculatorViewModel.CalculatorField)) * -1).ToString();
+                        CalculatorViewModel.AllowOperations = true;
+                        CalculatorViewModel.DecimalClicked = true;
+                    }                  
+                    break;
                 case "sqrt":
                     if (decimal.Parse(CalculateString(CalculatorViewModel.CalculatorField)) < 0)
                     {
@@ -133,6 +145,76 @@ namespace CalculatorWPF
                     break;
             }
         }
+        public static string CalculateStringWithMinus(string mathProblem)
+        {
+            char[] delimiterChars = { '+', '-', '×', '÷' };
+            string[] numbers = mathProblem.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+            char[] operations = new string(mathProblem.Where(c => c < '0' || c > '9').ToArray()).ToCharArray();
+            operations = operations.Skip(1).ToArray();
+            decimal result = 0;
+                switch (operations[0])
+            {
+                case '+':
+                    result = -decimal.Parse(numbers[0]) + decimal.Parse(numbers[1]);
+                    break;
+                case '-':
+                    result = -decimal.Parse(numbers[0]) - decimal.Parse(numbers[1]);
+                    break;
+                case '×':
+                    result = -decimal.Parse(numbers[0]) * decimal.Parse(numbers[1]);
+                    break;
+                case '÷':
+                    result = -decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+                    break;
+                default:
+                    break;
+            }
+            for (int i = 1; i < numbers.Length - 1; i++)
+            {
+                if (result == 0)
+                {
+                    switch (operations[i])
+                    {
+                        case '+':
+                            result = result + decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '-':
+                            result = result - decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '×':
+                            result = result * decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '÷':
+                            result = result / decimal.Parse(numbers[i + 1]);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (operations[i])
+                    {
+                        case '+':
+                            result += decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '-':
+                            result -= decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '×':
+                            result *= decimal.Parse(numbers[i + 1]);
+                            break;
+                        case '÷':
+                            result /= decimal.Parse(numbers[i + 1]);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            CalculatorViewModel.AllowOperations = true;
+            return result.ToString();
+        }
 
         public static string CalculateString(string mathProblem)
         {
@@ -140,6 +222,8 @@ namespace CalculatorWPF
                 return mathProblem;
             if (mathProblem.EndsWith("+") || mathProblem.EndsWith("-") || mathProblem.EndsWith("×") || mathProblem.EndsWith("÷"))
                 mathProblem = mathProblem.Remove(mathProblem.Length - 1, 1);
+            if (mathProblem.StartsWith("-"))
+                return CalculateStringWithMinus(mathProblem);
             char[] delimiterChars = { '+', '-', '×', '÷' };
             string[] numbers = mathProblem.Split(delimiterChars);
             char[] operations = new string(mathProblem.Where(c => c < '0' || c > '9').ToArray()).ToCharArray();
