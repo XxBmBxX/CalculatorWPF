@@ -231,7 +231,9 @@
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource CalculatorText}" Text="{Binding CalculatorField}" Grid.Row="0" />
+                <Viewbox HorizontalAlignment="Right" >
+                    <TextBlock Style="{StaticResource CalculatorText}" Text="{Binding CalculatorField}" Grid.Row="0" />
+                </Viewbox>
                 <DockPanel Grid.Row="1">
                     <TextBlock Style="{StaticResource HeaderText}">Memory</TextBlock>
                     <TextBlock HorizontalAlignment="Right"
